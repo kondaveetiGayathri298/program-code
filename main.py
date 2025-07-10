@@ -158,7 +158,7 @@ class DemandPredictor:
             if day_of_week >= 5:  # Weekend
                 base_demand *= 1.3
             
-            demand = base_demand * weather_score * event_factor + random.normal(0, 1)
+            demand = base_demand * weather_score * event_factor + np.random.normal(0, 1)
             demand = max(0, demand)
             
             X.append([hour, day_of_week, current_stock, weather_score, event_factor])
