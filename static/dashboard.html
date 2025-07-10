@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Shelf-to-Door System (S2D)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .shelf-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .shelf-info h4 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .shelf-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .stock-bar {
+            width: 100px;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .stock-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .stock-high { background: #28a745; }
+        .stock-medium { background: #ffc107; }
+        .stock-low { background: #fd7e14; }
+        .stock-critical { background: #dc3545; }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 4px solid;
+        }
+
+        .alert-critical {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .alert-high {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .alert-medium {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .alert-low {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+        }
+
+        .alert-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-right: 10px;
+        }
+
+        .badge-critical {
+            background: #dc3545;
+            color: white;
+        }
+
+        .badge-high {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .badge-medium {
+            background: #28a745;
+            color: white;
+        }
+
+        .badge-low {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .route-optimizer {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .route-form {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input, select, button {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .route-result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .connected {
+            background: #28a745;
+            color: white;
+        }
+
+        .disconnected {
+            background: #dc3545;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .route-form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connectionStatus">
+        <span class="loading"></span> Connecting...
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>🛒 Smart Shelf-to-Door System</h1>
+            <p class="subtitle">AI-Powered Retail Supply Chain Monitoring</p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalShelves">0</div>
+                <div class="stat-label">Active Shelves</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="lowStockItems">0</div>
+                <div class="stat-label">Low Stock Items</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="activeAlerts">0</div>
+                <div class="stat-label">Active Alerts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avgStockLevel">0%</div>
+                <div class="stat-label">Avg Stock Level</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">📊</div>
+                    <div class="card-title">Smart Shelves Status</div>
+                </div>
+                <div id="shelvesContainer">
+                    <div class="loading"></div> Loading shelf data...
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">🚨</div>
+                    <div class="card-title">Stock Alerts</div>
+                </div>
+                <div id="alertsContainer">
+                    <div class="loading"></div> Loading alerts...
+                </div>
+            </div>
+        </div>
+
+        <div class="route-optimizer">
+            <div class="card-header">
+                <div class="card-icon">🚚</div>
+                <div class="card-title">Delivery Route Optimizer</div>
+            </div>
+            
+            <div class="route-form">
+                <div>
+                    <div class="form-group">
+                        <label for="deliveryAddress">Delivery Address</label>
+                        <input type="text" id="deliveryAddress" placeholder="Enter delivery address">
+                    </div>
+                </div>
+                <button onclick="addDeliveryStop()">Add Stop</button>
+            </div>
+
+            <div id="deliveryStops"></div>
+            
+            <button onclick="optimizeRoute()" style="width: 100%; margin-top: 15px;">
+                🗺️ Optimize Delivery Route
+            </button>
+
+            <div class="route-result" id="routeResult"></div>
+        </div>
+    </div>
+
+    <script>
+        let websocket = null;
+        let deliveryStops = [];
+
+        // Initialize WebSocket connection
+        function initWebSocket() {
+            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
+            
+            websocket = new WebSocket(wsUrl);
+            
+            websocket.onopen = function() {
+                updateConnectionStatus(true);
+                console.log('WebSocket connected');
+            };
+            
+            websocket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                if (data.type === 'shelf_update') {
+                    updateShelvesDisplay(data.data);
+                }
+            };
+            
+            websocket.onclose = function() {
+                updateConnectionStatus(false);
+                console.log('WebSocket disconnected');
+                // Attempt to reconnect after 3 seconds
+                setTimeout(initWebSocket, 3000);
+            };
+            
+            websocket.onerror = function(error) {
+                console.error('WebSocket error:', error);
+                updateConnectionStatus(false);
+            };
+        }
+
+        function updateConnectionStatus(connected) {
+            const statusElement = document.getElementById('connectionStatus');
+            if (connected) {
+                statusElement.innerHTML = '🟢 Connected';
+                statusElement.className = 'connection-status connected';
+            } else {
+                statusElement.innerHTML = '🔴 Disconnected';
+                statusElement.className = 'connection-status disconnected';
+            }
+        }
+
+        // Fetch and display shelf data
+        async function loadShelfData() {
+            try {
+                const response = await fetch('/api/shelves');
+                const shelves = await response.json();
+                updateShelvesDisplay(shelves);
+                updateStats(shelves);
+            } catch (error) {
+                console.error('Error loading shelf data:', error);
+            }
+        }
+
+        function updateShelvesDisplay(shelves) {
+            const container = document.getElementById('shelvesContainer');
+            
+            if (!shelves || (Array.isArray(shelves) && shelves.length === 0)) {
+                container.innerHTML = '<p>No shelf data available</p>';
+                return;
+            }
+
+            // Convert object to array if needed
+            const shelvesArray = Array.isArray(shelves) ? shelves : Object.values(shelves);
+            
+            container.innerHTML = shelvesArray.map(shelf => {
+                const stockPercentage = shelf.stock_percentage || (shelf.current_stock / shelf.max_capacity * 100);
+                let stockClass = 'stock-high';
+                
+                if (stockPercentage <= 10) stockClass = 'stock-critical';
+                else if (stockPercentage <= 20) stockClass = 'stock-low';
+                else if (stockPercentage <= 50) stockClass = 'stock-medium';
+                
+                return `
+                    <div class="shelf-item">
+                        <div class="shelf-info">
+                            <h4>${shelf.product_name}</h4>
+                            <p>${shelf.location} • ${shelf.shelf_id}</p>
+                        </div>
+                        <div>
+                            <div class="stock-bar">
+                                <div class="stock-fill ${stockClass}" style="width: ${stockPercentage}%"></div>
+                            </div>
+                            <small>${shelf.current_stock}/${shelf.max_capacity} units</small>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateStats(shelves) {
+            const shelvesArray = Array.isArray(shelves) ? shelves : Object.values(shelves);
+            
+            const totalShelves = shelvesArray.length;
+            const lowStockItems = shelvesArray.filter(shelf => {
+                const stockPercentage = shelf.stock_percentage || (shelf.current_stock / shelf.max_capacity * 100);
+                return stockPercentage <= 20;
+            }).length;
+            
+            const avgStockLevel = totalShelves > 0 
+                ? Math.round(shelvesArray.reduce((sum, shelf) => {
+                    const stockPercentage = shelf.stock_percentage || (shelf.current_stock / shelf.max_capacity * 100);
+                    return sum + stockPercentage;
+                }, 0) / totalShelves)
+                : 0;
+
+            document.getElementById('totalShelves').textContent = totalShelves;
+            document.getElementById('lowStockItems').textContent = lowStockItems;
+            document.getElementById('avgStockLevel').textContent = avgStockLevel + '%';
+        }
+
+        // Fetch and display alerts
+        async function loadAlerts() {
+            try {
+                const response = await fetch('/api/alerts');
+                const alerts = await response.json();
+                updateAlertsDisplay(alerts);
+                document.getElementById('activeAlerts').textContent = alerts.length;
+            } catch (error) {
+                console.error('Error loading alerts:', error);
+            }
+        }
+
+        function updateAlertsDisplay(alerts) {
+            const container = document.getElementById('alertsContainer');
+            
+            if (!alerts || alerts.length === 0) {
+                container.innerHTML = '<p>No active alerts</p>';
+                return;
+            }
+
+            container.innerHTML = alerts.map(alert => `
+                <div class="alert-item alert-${alert.urgency}">
+                    <span class="alert-badge badge-${alert.urgency}">${alert.urgency}</span>
+                    <div>
+                        <strong>${alert.product_name}</strong> (${alert.shelf_id})
+                        <br>
+                        <small>Stock: ${alert.current_stock} units • 
+                        Predicted stockout: ${new Date(alert.predicted_stockout_time).toLocaleString()}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Route optimization functions
+        function addDeliveryStop() {
+            const address = document.getElementById('deliveryAddress').value.trim();
+            if (!address) return;
+
+            // Generate random coordinates for demo
+            const lat = 40.7128 + (Math.random() - 0.5) * 0.1;
+            const lng = -74.0060 + (Math.random() - 0.5) * 0.1;
+
+            const stop = {
+                address: address,
+                lat: lat,
+                lng: lng,
+                id: Date.now()
+            };
+
+            deliveryStops.push(stop);
+            updateDeliveryStopsDisplay();
+            document.getElementById('deliveryAddress').value = '';
+        }
+
+        function updateDeliveryStopsDisplay() {
+            const container = document.getElementById('deliveryStops');
+            
+            if (deliveryStops.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = `
+                <h4>Delivery Stops (${deliveryStops.length})</h4>
+                ${deliveryStops.map((stop, index) => `
+                    <div class="shelf-item">
+                        <div class="shelf-info">
+                            <h4>Stop ${index + 1}</h4>
+                            <p>${stop.address}</p>
+                        </div>
+                        <button onclick="removeDeliveryStop(${stop.id})" style="background: #dc3545;">Remove</button>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function removeDeliveryStop(id) {
+            deliveryStops = deliveryStops.filter(stop => stop.id !== id);
+            updateDeliveryStopsDisplay();
+        }
+
+        async function optimizeRoute() {
+            if (deliveryStops.length === 0) {
+                alert('Please add at least one delivery stop');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/generate-route', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(deliveryStops)
+                });
+
+                const result = await response.json();
+                displayRouteResult(result);
+            } catch (error) {
+                console.error('Error optimizing route:', error);
+                alert('Error optimizing route. Please try again.');
+            }
+        }
+
+        function displayRouteResult(result) {
+            const container = document.getElementById('routeResult');
+            
+            container.innerHTML = `
+                <h4>🗺️ Optimized Route Generated</h4>
+                <div class="stats-grid" style="margin: 15px 0;">
+                    <div style="text-align: center;">
+                        <strong>${result.total_distance_km} km</strong>
+                        <br><small>Total Distance</small>
+                    </div>
+                    <div style="text-align: center;">
+                        <strong>${result.estimated_duration_minutes} min</strong>
+                        <br><small>Estimated Time</small>
+                    </div>
+                    <div style="text-align: center;">
+                        <strong>${result.route_id}</strong>
+                        <br><small>Route ID</small>
+                    </div>
+                </div>
+                <h5>Route Sequence:</h5>
+                ${result.optimized_route.map((stop, index) => `
+                    <div class="shelf-item">
+                        <div class="shelf-info">
+                            <h4>Stop ${index + 1}</h4>
+                            <p>${stop.address}</p>
+                        </div>
+                        <small>📍 ${stop.lat.toFixed(4)}, ${stop.lng.toFixed(4)}</small>
+                    </div>
+                `).join('')}
+            `;
+            
+            container.style.display = 'block';
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initWebSocket();
+            loadShelfData();
+            loadAlerts();
+            
+            // Refresh data every 30 seconds
+            setInterval(() => {
+                loadShelfData();
+                loadAlerts();
+            }, 30000);
+        });
+    </script>
+</body>
+</html>
